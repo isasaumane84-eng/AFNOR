@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Classeur Qualité AFNOR REF-230 V3</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a1a;font-size:14px}
+:root{--blue:#185FA5;--blue-bg:#E6F1FB;--green:#0F6E56;--green-bg:#E1F5EE;--purple:#534AB7;--purple-bg:#EEEDFE;--amber:#854F0B;--amber-bg:#FAEEDA;--red:#993C1D;--red-bg:#FAECE7;--pink:#993556;--pink-bg:#FBEAF0;--teal:#0F6E56;--teal-bg:#E1F5EE;--gray:#5F5E5A;--gray-bg:#F1EFE8;--border:#e2e0d8;--card:#fff;--radius:10px}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-header{padding:16px 14px 12px;border-bottom:1px solid var(--border)}
+.sidebar-header .logo{font-size:11px;font-weight:600;color:var(--blue);letter-spacing:.05em;text-transform:uppercase}
+.sidebar-header .title{font-size:13px;font-weight:600;color:#1a1a1a;margin-top:4px;line-height:1.3}
+.sidebar-header .sub{font-size:11px;color:#888;margin-top:2px}
+.nav{flex:1;overflow-y:auto;padding:8px 0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;border-left:3px solid transparent;transition:all .15s;font-size:12.5px;color:#444}
+.nav-item:hover{background:#f8f7f3;color:#1a1a1a}
+.nav-item.active{background:#f0efeb;border-left-color:var(--blue);color:#1a1a1a;font-weight:500}
+.nav-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;background:#eee;color:#666}
+.main{flex:1;overflow-y:auto;background:#f5f4f0}
+.topbar{background:#fff;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:15px;font-weight:600;color:#1a1a1a}
+.topbar-sub{font-size:12px;color:#888;margin-top:1px}
+.topbar-actions{display:flex;gap:8px}
+.btn{font-size:12px;padding:6px 14px;border-radius:7px;border:1px solid var(--border);background:#fff;cursor:pointer;color:#444;transition:all .15s;font-weight:500}
+.btn:hover{background:#f5f4f0;border-color:#ccc}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn-primary:hover{opacity:.9}
+.btn-sm{font-size:11px;padding:4px 10px;border-radius:6px}
+.content{padding:20px 24px 40px}
+
+/* CARDS */
+.section-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:#888;margin-bottom:10px;margin-top:20px}
+.section-title:first-child{margin-top:0}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:8px}
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all .15s}
+.card:hover{border-color:#bbb;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.card.open{border-color:var(--blue);box-shadow:0 0 0 2px rgba(24,95,165,.12)}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.card-num{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.04em}
+.card-title{font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.4;margin-bottom:4px}
+.card-desc{font-size:12px;color:#666;line-height:1.5;margin-bottom:10px}
+.card-tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500}
+.tag-obl{background:#E1F5EE;color:#0F6E56}
+.tag-comp{background:#FAEEDA;color:#854F0B}
+.tag-opt{background:#EEEDFE;color:#534AB7}
+.tag-audit{background:#E6F1FB;color:#185FA5}
+.status-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.s-ok{background:#22c55e}
+.s-todo{background:#f59e0b}
+.s-no{background:#e5e7eb}
+
+/* DETAIL DRAWER */
+.drawer{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-top:8px;padding:18px 20px;margin-bottom:8px}
+.drawer-section{margin-bottom:16px}
+.drawer-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#888;margin-bottom:8px}
+.proof-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:7px}
+.proof-item{background:#f8f7f3;border:1px solid var(--border);border-radius:7px;padding:8px 10px;font-size:12px;color:#444;display:flex;align-items:flex-start;gap:7px}
+.proof-icon{width:14px;height:14px;border-radius:3px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center}
+.procedure-box{background:#f8f7f3;border:1px solid var(--border);border-radius:7px;padding:12px 14px;font-size:12px;color:#333;line-height:1.7;white-space:pre-wrap}
+.checklist-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid #f0efeb;font-size:12.5px;color:#333}
+.checklist-item:last-child{border-bottom:none}
+.cb{width:16px;height:16px;border:1.5px solid #ccc;border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cb.checked{background:var(--green);border-color:var(--green)}
+.cb.checked::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+.actions-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* STATS BAR */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.stat-n{font-size:24px;font-weight:700;color:#1a1a1a}
+.stat-l{font-size:11px;color:#888;margin-top:2px}
+
+/* PROGRESS */
+.progress-bar{height:4px;background:#eee;border-radius:2px;margin-top:6px;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--green);transition:width .3s}
+
+/* FORM ELEMENTS */
+textarea,input[type=text],select{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;color:#1a1a1a;background:#fff;resize:vertical}
+textarea:focus,input:focus,select:focus{outline:none;border-color:var(--blue)}
+label{font-size:12px;color:#555;margin-bottom:4px;display:block}
+.form-row{margin-bottom:12px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:#f5f4f0;padding:8px 10px;text-align:left;font-weight:600;color:#555;border-bottom:1px solid var(--border)}
+td{padding:8px 10px;border-bottom:1px solid #f0efeb;color:#333;vertical-align:top}
+tr:last-child td{border-bottom:none}
+.tr-ok td{background:#f0fdf4}
+.tr-todo td{background:#fffbeb}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:12px;padding:24px;width:560px;max-width:95vw;max-height:85vh;overflow-y:auto}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:4px}
+.modal .sub{font-size:12px;color:#888;margin-bottom:16px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+
+/* TABS inside content */
+.inner-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0}
+.inner-tab{font-size:12.5px;padding:6px 14px;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.inner-tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+
+/* PRINT */
+@media print{.sidebar,.topbar-actions{display:none}.main{overflow:visible}.app{height:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">AFNOR REF-230 V3</div>
+    <div class="title">Classeur Qualité Optique</div>
+    <div class="sub">Démarche initiale</div>
+  </div>
+  <nav class="nav" id="nav"></nav>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="page-title">Tableau de bord</div>
+      <div class="topbar-sub" id="page-sub">Vue d'ensemble de la certification</div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" onclick="printPage()">Imprimer</button>
+      <button class="btn btn-sm btn-primary" onclick="showModal('autoeval')">Auto-évaluation</button>
+    </div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" style="display:none" onclick="closeModal(event)">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const PAGES=[
+  {id:'dashboard',label:'Tableau de bord',color:'#185FA5',badge:''},
+  {id:'gov',label:'1 — Gouvernance',color:'#185FA5',badge:'3'},
+  {id:'accueil',label:'2 — Relation client',color:'#0F6E56',badge:'4'},
+  {id:'prestation',label:'3 — Prestation',color:'#534AB7',badge:'3'},
+  {id:'suivi',label:'4 — Suivi client',color:'#854F0B',badge:'3'},
+  {id:'satisfaction',label:'5 — Satisfaction',color:'#993C1D',badge:'2'},
+  {id:'compl',label:'6 — Prestations compl.',color:'#993556',badge:'2'},
+  {id:'optionnel',label:'7 — Services optionnels',color:'#3B6D11',badge:'3'},
+  {id:'pilotage',label:'8 — Pilotage & audit',color:'#5F5E5A',badge:'3'},
+  {id:'signaletique',label:'Fiche signalétique',color:'#888',badge:''},
+  {id:'reclamations',label:'Registre réclamations',color:'#888',badge:''},
+  {id:'formations',label:'Plan de formation',color:'#888',badge:''},
+];
+
+const ENGAGEMENTS=[
+  // GOV
+  {id:'e1a',page:'gov',num:'Eng. 1A',title:'Charte déontologique',
+   tag:'obl',desc:'Loyauté, transparence, rôle de professionnel de santé. Applicable à tout le personnel.',
+   checklist:['Charte rédigée et signée par le responsable','Charte affichée ou accessible au personnel','Formation déontologie attestée pour chaque collaborateur','Diplôme opticien vérifié et copie dans le classeur'],
+   proofs:['Charte de déontologie signée','Attestation formation déonto (chaque employé)','Copie diplôme opticien','Badge opticien conforme'],
+   procedure:`PROCÉDURE — Déontologie et éthique\n\nObjet : Garantir que l'ensemble du personnel applique les principes déontologiques de la profession.\n\nChamp d'application : Tout le personnel du point de vente.\n\nEngagements couverts :\n• Loyauté dans l'exercice des fonctions\n• Information objective sur les produits et services\n• Offre adaptée aux besoins visuels (non au remboursement)\n• Facturation conforme à la réalité\n• Identification comme professionnel de santé\n\nModalités :\n1. Remise de la charte à l'embauche, signature obligatoire\n2. Rappel annuel lors d'une réunion d'équipe\n3. En cas de doute, le responsable est consulté avant toute décision\n\nResponsable : Directeur du point de vente\nFréquence de révision : Annuelle`},
+
+  {id:'e1b',page:'gov',num:'Eng. 1B',title:'Actions environnementales',
+   tag:'obl',desc:'Minimum 1 action parmi : suivi consommations, tri déchets pro, tri déchets courants, consommation responsable clients.',
+   checklist:['Action environnementale choisie et documentée','Personnel sensibilisé aux éco-gestes (attestation)','Affichage ou communication client en place','Preuve de l\'action retenue (bac tri, charte conso, logo...)'],
+   proofs:['Fiche action environnementale choisie','Attestation sensibilisation éco-gestes','Preuve visuelle (photo bac de tri, affichage...)'],
+   procedure:`PROCÉDURE — Responsabilité environnementale\n\nAction retenue (cocher) :\n☐ Action 1 : Suivi des consommations eau et énergie\n☐ Action 2 : Réduction et tri des déchets professionnels\n☐ Action 3 : Réduction et tri des déchets courants\n☐ Action 4 : Consommation responsable clients\n\nModalités de mise en œuvre :\n• Désigner un référent environnement dans le magasin\n• Former le personnel aux éco-gestes (réunion + signature)\n• Afficher les consignes dans les zones appropriées\n• Vérifier l'application trimestriellement\n\nDocuments à conserver : attestation de sensibilisation datée et signée`},
+
+  {id:'e1c',page:'gov',num:'Eng. 1C',title:'Actions sociétales / sociales',
+   tag:'obl',desc:'Minimum 1 action parmi : ancrage local, SST/QVT, bien-être collaborateurs.',
+   checklist:['Action sociétale choisie et documentée','Preuve de l\'action (contrat, attestation, charte SST...)','Personnel informé'],
+   proofs:['Contrat partenariat association OU attestation de don','Charte SST ou QVT signée','Photo ou document de l\'espace pause'],
+   procedure:`PROCÉDURE — Responsabilité sociétale\n\nAction retenue (cocher) :\n☐ Action 1 : Ancrage local (partenariat asso, don, recrutement alternant, stage 3e, prévention locale)\n☐ Action 2 : Santé/sécurité et qualité de vie au travail\n\nSi Action 1 retenue :\n• Signer un contrat de partenariat OU conserver un reçu fiscal de don\n• OU conserver le contrat d'apprentissage / de stage\n\nSi Action 2 retenue :\n• Rédiger une charte SST ou QVT\n• ET/OU documenter les aménagements matériels\n• ET/OU identifier et aménager l'espace pause\n\nResponsable : Directeur du point de vente\nFréquence de révision : Annuelle`},
+
+  // ACCUEIL
+  {id:'e2',page:'accueil',num:'Eng. 2',title:'Accueil physique et téléphonique',
+   tag:'obl',desc:'Courtoisie, badge opticien réglementaire, horaires concordants, accès PMR.',
+   checklist:['Procédure d\'accueil rédigée et connue du personnel','Badge opticien conforme au décret 2016-1381','Horaires affichés (extérieur) et concordants sur internet','Messagerie vocale avec horaires en dehors ouverture','Accès PMR vérifié','Formation accueil attestée pour chaque collaborateur'],
+   proofs:['Procédure accueil écrite','Attestations formation accueil','Photo badge opticien','Capture écran horaires internet','Vérification accès PMR'],
+   procedure:`PROCÉDURE — Accueil client\n\nPendant les heures d'ouverture :\n1. Accueillir le client dès son entrée (formule de politesse dans les 30 secondes)\n2. Se présenter par son prénom et sa fonction\n3. Identifier le motif de visite\n4. Orienter vers la zone ou le service adapté\n5. En cas d'attente : prévenir le client et lui proposer de patienter\n\nAu téléphone :\n1. Décrocher avant la 3e sonnerie\n2. Identification : «[Nom du magasin], [prénom], bonjour»\n3. Écoute active, reformulation si nécessaire\n4. Rappel si impossible de répondre immédiatement\n\nEn dehors des heures d'ouverture :\n• Messagerie : «Vous êtes bien au [nom magasin]. Nous sommes ouverts [horaires]. Merci de rappeler ou de laisser un message.»\n\nBadge : l'opticien porte en permanence son badge avec titre professionnel (décret 2016-1381).\n\nResponsable : Tout le personnel / Directeur\nFréquence de vérification : Mensuelle`},
+
+  {id:'e3',page:'accueil',num:'Eng. 3',title:'Agencement et information magasin',
+   tag:'obl',desc:'Propreté, étiquetage prix complet (y compris tiroirs), CGV disponibles, info RDV possible.',
+   checklist:['Tous les produits ont un prix affiché (présentoirs + tiroirs)','Magasin propre et bien rangé','CGV consultables sur demande','Information RDV affichée ou communiquée oralement','Documentation produits disponible pour les clients'],
+   proofs:['Plan d\'aménagement du magasin','Liste du matériel présent','Vérification visuelle étiquetage (échantillon)','CGV rédigées et accessibles'],
+   procedure:`PROCÉDURE — Tenue du magasin et information client\n\nCheck quotidien d'ouverture :\n☐ Sol propre, pas de salissures\n☐ Présentoirs dépoussiérés, produits rangés\n☐ Tous les articles avec prix visible\n☐ Montures en tiroir avec étiquette prix\n☐ Documentation produits disponible en rayon\n☐ Affichage RDV visible\n\nCheck hebdomadaire :\n☐ CGV à jour et accessibles\n☐ Réassortiment des documentations produits\n☐ Vérification cohérence prix affichés / logiciel\n\nResponsable : Personne désignée en ouverture\nTraçabilité : Feuille de check quotidienne datée et signée`},
+
+  {id:'e4',page:'accueil',num:'Eng. 4',title:'Formation et compétences du personnel',
+   tag:'obl',desc:'Plan de formation annuel. Minimum 21h/an/personne (hors CPF exclusif). Toutes natures de formation.',
+   checklist:['Plan de formation N-1 finalisé et archivé','Plan de formation N prévu et formalisé','Suivi heures de formation par employé','Attestations de formation dans les dossiers RH','DPC opticien à jour si applicable'],
+   proofs:['Plan de formation N-1 signé','Plan de formation N','Attestations formation par collaborateur','Tableau suivi heures/an/employé'],
+   procedure:`PROCÉDURE — Gestion du plan de formation\n\nÉtapes annuelles :\n1. Novembre : recensement des besoins (entretien avec chaque collaborateur)\n2. Décembre : formalisation du plan de formation N+1\n3. Tout au long de l'année : envoi en formation + collecte des attestations\n4. Décembre : bilan réel vs prévu (heures/personne)\n\nRègle : minimum 21h/an/personne présente dans le magasin (proratisé).\nLa formation ne peut pas être exclusivement réalisée au titre du CPF.\n\nNatures acceptées : formation certifiante ou diplômante, formation continue, colloques/congrès, salons, formations fabricants/laboratoires, DPC.\n\nConservation : 3 ans minimum dans le dossier de compétences de chaque employé.`},
+
+  {id:'e5',page:'accueil',num:'Eng. 5',title:'Produits conformes et contrôlés',
+   tag:'obl',desc:'Critères de sélection fournisseurs, contrôle à réception, contrôle montage, conservation BL 6 mois.',
+   checklist:['Critères de sélection fournisseurs formalisés','Procédure contrôle réception documentée','Enregistrements contrôles réception archivés','Contrôle qualité montage enregistré','BL conservés au moins 6 mois'],
+   proofs:['Grille critères fournisseurs','Fiche contrôle réception (exemples archivés)','Fiche contrôle montage (exemples)','BL des 6 derniers mois'],
+   procedure:`PROCÉDURE — Contrôle des produits\n\n1. SÉLECTION FOURNISSEURS\nCritères évalués : qualité des produits, respect des délais, SAV, prix, retours satisfaction clients.\nRéévaluation : annuelle.\n\n2. CONTRÔLE À RÉCEPTION\nÀ chaque livraison :\n☐ Conformité BL / devis client\n☐ Absence de défaut visuel (monture, verres)\n☐ Paramètres verres conformes (puissance, traitement)\n☐ Date de péremption lentilles et produits entretien\n☐ État emballage\nEnregistrement : fiche de contrôle datée + signature\nConservation BL : 6 mois minimum\n\n3. CONTRÔLE MONTAGE\n☐ Puissances respectées\n☐ Dimension verre / centrage / axage\n☐ Finitions (contre-biseau, rhabillage)\n☐ Aspect général (couleur, traitement cosmétique)\n☐ Options (prismes, précal...)\nEnregistrement : dans le dossier client ou fiche de travail`},
+
+  // PARTENAIRES
+  {id:'e6',page:'accueil',num:'Eng. 6',title:'Prise en charge et organismes AM',
+   tag:'obl',desc:'Tiers payant, loyauté OC, accompagnement administratif, confidentialité.',
+   checklist:['Liste des conventions OC tenue à jour','Procédure tiers payant formalisée','Procédure gestion dossiers litigieux','Engagement confidentialité des données assuré'],
+   proofs:['Liste des conventions OC à jour (date de révision)','Procédure tiers payant','Procédure dossiers litigieux'],
+   procedure:`PROCÉDURE — Relations organismes d'assurance maladie\n\n1. TIERS PAYANT\n• Vérifier les droits de l'assuré avant délivrance\n• Expliquer les termes de l'accord OC en toute transparence\n• Informer du reste à charge éventuel\n• Mettre en œuvre le tiers payant si prévu dans l'accord\n\n2. SANS ACCORD OC\n• Accompagner administrativement le client\n• Fournir toutes les pièces justificatives nécessaires au remboursement\n\n3. DOSSIERS LITIGIEUX\n• Conserver la facture client + BL fournisseur\n• Répondre à l'OC sous 15 jours ouvrés\n• Confirmer la marque et le type d'équipement livré\n\n4. CONFIDENTIALITÉ\n• Les données assuré ne sont communiquées qu'à l'OC concerné\n• Aucune information n'est divulguée à des tiers\n• RGPD applicable en toutes circonstances`},
+
+  {id:'e7',page:'accueil',num:'Eng. 7',title:'Relations prescripteurs',
+   tag:'obl',desc:'Protocole d\'échanges avec la chaîne de santé visuelle, liste des prescripteurs.',
+   checklist:['Protocole d\'échanges avec prescripteurs formalisé','Liste des principaux prescripteurs tenue à jour','Personnel informé des obligations réciproques'],
+   proofs:['Protocole échanges chaîne de santé visuelle','Liste prescripteurs (ophtalmologistes, orthoptistes)'],
+   procedure:`PROCÉDURE — Relations avec les prescripteurs\n\nIntervenants identifiés :\n• Ophtalmologistes\n• Orthoptistes\n• Médecins prescripteurs\n\nObligations réciproques :\n1. Respecter la prescription médicale\n2. Informer le prescripteur de toute adaptation (décret 2016-1381)\n3. Envoyer le compte rendu d'examen non médical si réalisé\n4. Orienter le client vers le prescripteur en cas de doute clinique\n\nModalités d'échanges :\n• Courrier / courriel pour toute modification de prescription\n• Identification de l'opticien dans tout courrier (nom + fonction)\n• Conservation des échanges dans le dossier client\n\nListe prescripteurs : mise à jour au minimum annuellement`},
+
+  // PRESTATION
+  {id:'e8',page:'prestation',num:'Eng. 8',title:'Identification des besoins',
+   tag:'obl',desc:'Analyse de l\'équipement porté, morphologie, besoins, usage, mesures préalables, essai correction.',
+   checklist:['Trame d\'entretien client formalisée','Mesure ancien équipement systématique','Analyse besoins (style de vie, profession, sport, budget)','Proposition d\'essai pour nouveaux porteurs ou forte différence'],
+   proofs:['Trame entretien client','Dossiers clients avec données recueillies','Visite mystère AFNOR'],
+   procedure:`PROCÉDURE — Analyse des besoins client\n\nAvant toute proposition, l'opticien :\n\n1. ANALYSE L'ÉQUIPEMENT PORTÉ\n• Mesure de l'ancien équipement\n• Évaluation de la compensation actuelle\n• Différences en centrage, axage, type de verres\n\n2. RECUEIL DES INFORMATIONS\n• Caractéristiques morphologiques (visage, âge)\n• Style de vie / profession / activités sportives\n• Souhaits esthétiques et contraintes budgétaires\n• Confort actuel avec l'équipement porté\n\n3. EXPLICATION DE LA PRESCRIPTION\n• Expliquer la prescription et ses limites\n• Présenter les options verres (avantages/inconvénients)\n• Épaisseurs attendues selon aminci choisi\n\n4. PRISE DE MESURES\n• Écart pupillaire (VP et VL)\n• Hauteur de montage si nécessaire\n• Mesures personnalisées pour verres progressifs\n\n5. ESSAI DE CORRECTION\n• Obligatoire pour : nouveau porteur, différence forte, inconfort exprimé\n• En vision de près et de loin pour corrections multifocales`},
+
+  {id:'e9',page:'prestation',num:'Eng. 9',title:'Offre de solutions argumentée',
+   tag:'obl',desc:'Devis normalisé détaillé, au moins une proposition, signature client, prise en charge expliquée.',
+   checklist:['Au moins une proposition formalisée par devis','Devis conforme à l\'arrêté du 29/08/2019','Explication du reste à charge','Signature du client sur la proposition retenue','Devis conservé dans le dossier client'],
+   proofs:['Modèle devis normalisé utilisé','Devis signés dans échantillon de dossiers clients'],
+   procedure:`PROCÉDURE — Élaboration du devis et présentation de l'offre\n\nObligations réglementaires (arrêté 29/08/2019) :\nLe devis normalisé doit mentionner :\n• Désignation de chaque produit (marque, référence, type)\n• Prix de vente de chaque produit\n• Montant pris en charge par la SS et la complémentaire\n• Reste à charge pour le bénéficiaire\n• Durée de validité du devis (30 jours min.)\n\nDéroulement :\n1. Présenter au moins une solution adaptée aux besoins définis\n2. Détailler chaque option (avantages, traitements, prix)\n3. Utiliser si possible des échantillons ou tests concrets\n4. Remettre le devis avant toute commande\n5. Obtenir la signature du client sur la proposition retenue\n6. Conserver le devis signé dans le dossier client`},
+
+  {id:'e10',page:'prestation',num:'Eng. 10',title:'Délivrance conforme au devis',
+   tag:'obl',desc:'Délai confirmé, ajustement sur le visage, facture détaillée conforme au devis, carte de vue.',
+   checklist:['Délai de livraison communiqué à la signature du devis','Procédure de gestion des retards formalisée','Ajustement de la monture systématique à la délivrance','Facture détaillée conforme au devis remise','Carte de vue / certificat d\'authenticité remis si fourni'],
+   proofs:['Modèle de communication retard','Factures conformes aux devis (échantillon)'],
+   procedure:`PROCÉDURE — Délivrance de l'équipement\n\n1. AVANT LA DÉLIVRANCE\n• Confirmer le délai au moment de la signature du devis\n• En cas de retard : prévenir immédiatement le client (tél, SMS ou mail)\n\n2. À LA DÉLIVRANCE\n• Présenter l'équipement au client\n• Ajuster la monture (branches, inclinaison de la face)\n• Vérifier le confort visuel (VP et VL)\n• Remettre la facture détaillée conforme au devis\n• Expliquer le reste à charge\n• Remettre carte de vue, certificat d'authenticité si fourni\n• Remettre les documents de garantie\n\n3. TRAÇABILITÉ\n• Conserver une copie de la facture dans le dossier client\n• Date de délivrance enregistrée\n• Opticien responsable identifié`},
+
+  // SUIVI
+  {id:'e11',page:'suivi',num:'Eng. 11',title:'Dossier de suivi personnalisé',
+   tag:'obl',desc:'État civil, traçabilité prescription, équipement, échanges PS, rappel lentilles, droit à l\'oubli.',
+   checklist:['Dossier créé pour chaque client','Données minimales présentes (état civil, prescription, équipement)','Rappel lentilles possible depuis le dossier','Procédure de sécurité informatique et sauvegarde','Procédure droit à l\'oubli formalisée'],
+   proofs:['Procédure gestion des dossiers clients','Procédure droit à l\'oubli','Politique sécurité informatique','Procédure sauvegarde données'],
+   procedure:`PROCÉDURE — Dossier client\n\nContenu minimum obligatoire :\n• État civil et coordonnées du client\n• Prescription médicale et adaptations éventuelles\n• Données techniques (écarts pupillaires, mesures...)\n• Références équipement (produits, fournisseurs)\n• Échanges avec professionnels de santé\n• Pour lentilles : éléments permettant rappel produit\n\nMise à jour : après chaque contact avec le client.\n\nConservation : selon obligations légales (minimum 5 ans recommandé).\n\nSécurité :\n• Accès protégé par mot de passe\n• Sauvegarde automatique quotidienne\n• Accès limité au personnel autorisé\n\nDroit à l'oubli (RGPD) :\n• Sur demande écrite du client, suppression de ses données\n• Délai : 30 jours maximum\n• Confirmation écrite de la suppression au client`},
+
+  {id:'e12',page:'suivi',num:'Eng. 12',title:'Garanties',
+   tag:'obl',desc:'Communication claire, expertise produit, vérification conditions, annonce délais et coûts.',
+   checklist:['Document de garantie remis à chaque client','Personnel formé aux garanties applicables','Procédure de mise en œuvre des garanties','Enregistrement des éléments remplacés'],
+   proofs:['Document garanties client','Procédure garantie','Dossiers clients avec traces SAV'],
+   procedure:`PROCÉDURE — Gestion des garanties\n\n1. INFORMATION PRÉALABLE\n• Remettre le document de garantie à chaque délivrance\n• Expliquer oralement les principales garanties\n\n2. MISE EN ŒUVRE D'UNE GARANTIE\nÉtapes :\n1. Recevoir la demande du client\n2. Expertiser le produit concerné\n3. Vérifier les conditions d'application (date, nature du défaut)\n4. Informer le client : conditions + coût éventuel + délai\n5. Prendre en charge le produit et enregistrer dans le dossier\n6. Informer le client de la résolution\n\n3. ENREGISTREMENT\nDans le dossier client, noter :\n• Date de la demande\n• Nature du problème\n• Solution apportée\n• Éléments remplacés (hors manchons, plaquettes, visserie)`},
+
+  {id:'e13',page:'suivi',num:'Eng. 13',title:'Conseils entretien et hygiène',
+   tag:'obl',desc:'Instructions fabricants, conseils lentilles, manipulation, produit entretien prescrit, préconisation contrôle.',
+   checklist:['Fiches conseil entretien disponibles','Supports contactologie disponibles','Point d\'eau et miroir adaptés (si vente lentilles)','Procédure apprentissage manipulation lentilles'],
+   proofs:['Fiches conseil entretien (verres, montures)','Supports conseils lentilles','Photo point d\'eau + miroir'],
+   procedure:`PROCÉDURE — Conseils d'entretien et d'hygiène\n\nPOUR TOUT ÉQUIPEMENT :\n• Remettre et expliquer les consignes d'entretien fabricant\n• Préciser les limites d'utilisation\n• Préconiser un contrôle chez le prescripteur si ordonnance > 1 an\n\nPOUR LES LENTILLES DE CONTACT :\n1. Expliquer la prescription et la durée de vie des lentilles\n2. Conseiller sur les conditions de port\n3. Vérifier la maîtrise de la manipulation et de l'hygiène\n4. Accompagner l'apprentissage si nécessaire (point d'eau + miroir obligatoires)\n5. Délivrer le produit d'entretien prescrit\n   → Si non prescrit : proposer un produit adapté en expliquant les modalités d'usage\n\nNote : le magasin doit disposer d'un point d'eau et d'un miroir adaptés à l'apprentissage de la manipulation des lentilles.`},
+
+  // SATISFACTION
+  {id:'e14',page:'satisfaction',num:'Eng. 14',title:'Gestion des réclamations',
+   tag:'obl',desc:'Tout moyen de contact accepté, enregistrement systématique, réponse sous 15 jours ouvrés.',
+   checklist:['Registre des réclamations en place','Procédure traitement réclamations formalisée','Modèle d\'accusé de réception réclamation','Délai de réponse ≤ 15 jours ouvrés respecté','Suivi des réclamations et des délais'],
+   proofs:['Registre réclamations','Procédure réclamations','Modèle accusé réception','Échantillon réclamations traitées avec délais'],
+   procedure:`PROCÉDURE — Traitement des réclamations\n\nDéfinition : Toute manifestation d'insatisfaction d'un client sur un produit ou service (hors petits SAV courants).\n\nCanaux acceptés : téléphone, visite en magasin, courrier, email, internet, fax.\n\nÉtapes de traitement :\n1. Réception : enregistrer dans le registre (date, client, nature, canal)\n2. Accusé de réception : confirmer la prise en compte oralement ou par écrit\n3. Analyse : identifier la cause du problème\n4. Résolution : proposer une solution sous 15 jours ouvrés\n5. Réponse : communiquer la solution au client (par écrit si possible)\n6. Clôture : enregistrer la solution apportée dans le registre\n7. Si délai dépassé : informer le client du nouveau délai\n\nAnalyse annuelle : bilan des réclamations, identification des causes récurrentes, plan d'amélioration.`},
+
+  {id:'e15',page:'satisfaction',num:'Eng. 15',title:'Mesure annuelle de satisfaction',
+   tag:'obl',desc:'Enquête quantitative + qualitative, taux global calculé, objectif et seuil critique définis annuellement.',
+   checklist:['Questionnaire de satisfaction formalisé','Mesure réalisée au moins une fois par an','Taux de satisfaction global calculé','Objectif à atteindre défini','Seuil critique défini','Plan d\'amélioration si nécessaire'],
+   proofs:['Questionnaire satisfaction','Résultats analysés de l\'année N-1','Définition objectif + seuil critique','Plan d\'amélioration si résultats sous seuil'],
+   procedure:`PROCÉDURE — Mesure de satisfaction client\n\nFréquence : Minimum une fois par an.\n\nModalités acceptées :\n• Enquête face-à-face en fin de prestation\n• Questionnaire courrier ou email\n• Enquête systématique après délivrance\n• Via outil numérique (tablette, QR code...)\n\nContenu minimum du questionnaire :\n• Au moins une note globale (quantitatif)\n• Au moins une question ouverte (qualitatif)\n• Thèmes : accueil, conseil, qualité produit, délais, prix/qualité\n\nTraitement des résultats :\n1. Calculer le taux de satisfaction globale\n2. Comparer à l'objectif fixé et au seuil critique\n3. Analyser les points faibles\n4. Si résultat < seuil critique : plan d'amélioration obligatoire\n5. Si résultat < objectif : envisager une action d'amélioration\n\nConservation : résultats archivés (présentés à l'audit de suivi N+1).`},
+
+  // COMPLEMENTAIRES
+  {id:'e16a',page:'compl',num:'Eng. 16A',title:'Examen de vue — conditions et matériel',
+   tag:'comp',desc:'Espace dédié confidentiel, matériel réglementaire obligatoire, conditions légales vérifiées.',
+   checklist:['Local dédié avec isolation phonique et visuelle','Boîte de verres d\'essai et monture d\'essai présentes','Échelle d\'acuité VP et VL (ou projecteur)','Faces vérificatrices ± 0,25 et ± 0,50','Cylindre croisé à retournement ± 0,25','Procédure examen de vue formalisée'],
+   proofs:['Photo du local dédié','Inventaire du matériel signé','Procédure examen de vue','Carnet de RDV (examens par opticien diplômé)'],
+   procedure:`PROCÉDURE — Examen non médical de la vue\n\nCONDITIONS LÉGALES (décret 2016-1381) :\nL'examen est proposé :\n• Lors d'un renouvellement (si le prescripteur n'a pas exclu l'adaptation)\n• Pour les presbytes si la 1ère correction a été prescrite médicalement\n\nMATÉRIEL OBLIGATOIRE (minimum) :\n☐ Boîte de verres d'essai\n☐ Monture d'essai\n☐ Échelle d'acuité VL ou projecteur de tests (avec ou sans renvoi à 5m)\n☐ Échelle de lecture Parinaud ou équivalent VP\n☐ Faces vérificatrices +/- 0,25 et +/- 0,50\n☐ Cylindre croisé à retournement (CCR) +/- 0,25\n\nLOCAL :\n• Enceinte du magasin ou local attenant\n• Isolation phonique et visuelle garantissant la confidentialité du patient\n\nRÉALISATION :\n• Uniquement par un opticien diplômé\n• Enregistrement dans le dossier client`},
+
+  {id:'e16b',page:'compl',num:'Eng. 16B',title:'Examen de vue — protocole et suivi',
+   tag:'comp',desc:'Protocole complet (acuité VL/VP, réfraction, vision binoculaire), recommandations HAS, compte rendu.',
+   checklist:['Protocole intégrant recommandations HAS','Compte rendu de l\'examen rédigé','Information du prescripteur si adaptation','Orientation prescripteur si critères HAS atteints'],
+   proofs:['Procédure avec recommandations HAS intégrées','Modèle compte rendu examen de vue','Exemples envois au prescripteur'],
+   procedure:`PROTOCOLE — Examen non médical de la vue\n\nÉTAPES OBLIGATOIRES :\n1. Prise d'acuité visuelle en vision de loin (VL)\n2. Prise d'acuité visuelle en vision de près (VP)\n3. Évaluation du défaut réfractif\n4. Évaluation de la vision binoculaire\n\nRECOMMANDATIONS HAS (orientation prescripteur si) :\n• Meilleure acuité corrigée < 10/10 en VL (si inconnue de l'opticien)\n• < Parinaud 2 en VP\n• Modification de la réfraction ≥ 1 dioptrie en 1 an\n• Changement d'axe ≥ 20° (astigmatisme ≥ 0,75 dioptrie)\n• Création ou modification d'une correction prismatique\n• Baisse de la meilleure acuité corrigée par rapport à la mesure précédente\n\nCOMPTE RENDU :\n• Rédigé à l'issue de chaque examen\n• Conservé dans le dossier client\n• Copie envoyée au prescripteur si modification\n\nINTERDICTION : aucune publicité sur la capacité de l'opticien à déterminer la réfraction (décret 2016-1381, art. 4).`},
+
+  {id:'e17',page:'compl',num:'Eng. 17',title:'Accompagnement basse vision',
+   tag:'comp',desc:'Local adapté, matériel complet, protocole formalisé, professionnel qualifié, compte rendu.',
+   checklist:['Local adapté et accessible','Matériel basse vision complet (liste REF-230)','Opticien qualifié basse vision (formation/agrément)','Protocole basse vision formalisé','Compte rendu dans le dossier client'],
+   proofs:['Inventaire matériel basse vision','Attestation formation basse vision','Procédure protocole basse vision','Exemples comptes rendus basse vision'],
+   procedure:`PROCÉDURE — Bilan basse vision\n\nMATÉRIEL OBLIGATOIRE :\n☐ Échelle d'acuité basse vision (VL et VP)\n☐ Boîte de verres d'essai\n☐ Montures d'essai\n☐ CCR minimum +/- 0,50\n☐ Systèmes télescopiques\n☐ Loupes\n☐ Demi-lunes prismatiques\n☐ Systèmes microscopiques monoculaires\n☐ Coffret de filtres sélectifs\n☐ Lampe basse tension\n☐ Pupitre\n☐ Systèmes électroniques\n\nPROTOCOLE :\n1. Recueil de l'origine de la déficience, des besoins et attentes\n2. Corrections portées et aides visuelles utilisées\n3. Examen de la réfraction\n4. Essais des aides visuelles appropriées\n5. Présentation des conclusions et recommandations\n6. Proposition de test du produit recommandé\n7. Information sur les possibilités de financement\n8. Si adressé par prescripteur : retour d'information à ce dernier`},
+
+  // OPTIONNELS
+  {id:'e18',page:'optionnel',num:'Eng. 18',title:'Services digitaux et RDV en ligne',
+   tag:'opt',desc:'Prise de mesures sur tablette/colonne, simulation réalité augmentée, RDV en ligne avec coordonnées visibles.',
+   checklist:['Matériel de prise de mesures numérique présent','Application simulation RA disponible','Plateforme RDV en ligne opérationnelle','Coordonnées magasin visibles sur la plateforme','Plages de RDV disponibles à tout moment'],
+   proofs:['Démonstration matériel en magasin','Capture écran plateforme RDV en ligne','Vérification coordonnées magasin sur outil digital'],
+   procedure:`PROCÉDURE — Services digitaux\n\nSERVICES DIGITAUX EN MAGASIN :\n1. Prise de mesures numérique\n   • Tablette, colonne ou miroir de prise de mesures\n   • Personnel formé à l'utilisation\n2. Simulation réalité augmentée\n   • Application ou logiciel dédié\n   • Démo proposée à tout client qui le souhaite\n\nRDV EN LIGNE :\nExigences de la plateforme :\n• Nom et adresse du magasin visibles\n• Numéro de téléphone affiché\n• Plages horaires disponibles et consultables\n• Motif de visite saisissable (liste ou champ libre)\n• Confirmation automatique envoyée au client`},
+
+  {id:'e19',page:'optionnel',num:'Eng. 19',title:'RDV à domicile',
+   tag:'opt',desc:'Périmètre défini, communication claire, matériel adapté, préparation et traçabilité.',
+   checklist:['Modalités d\'intervention définies par écrit','Communication magasin et/ou site internet en place','Matériel nécessaire disponible pour interventions domicile','Vérification ordonnance valide avant RDV','Traçabilité RDV dans dossier client ou agenda'],
+   proofs:['Document modalités intervention domicile','Affichage / page web du service','Exemples dossiers clients avec RDV domicile tracés'],
+   procedure:`PROCÉDURE — Service à domicile\n\nINTERDICTION : L'examen non médical de la vue ne peut pas être réalisé au domicile du client (réglementation en vigueur).\n\nAVANT LE RDV :\n1. Vérifier que le client est en possession d'une ordonnance valide\n2. S'assurer que la demande entre dans le périmètre d'intervention\n3. Recueillir les besoins spécifiques\n4. Informer que l'examen de vue ne peut être réalisé à domicile\n5. Enregistrer la date dans l'agenda ou dossier client\n\nDURANT LE RDV :\n• Mêmes offres, garanties et tarifs qu'en magasin\n• Mêmes prises de mesures possibles\n• Devis remis et signé si accord\n• Opticien réalisant le RDV clairement identifié\n\nAPRÈS LE RDV :\n• Recontacter le client quand l'équipement est prêt\n• Organiser la remise (magasin ou domicile selon accord)\n• Date de livraison enregistrée`},
+
+  {id:'e20',page:'optionnel',num:'Eng. 20',title:'Vision de l\'enfant',
+   tag:'opt',desc:'Opticien(s) référent(s) formé(s), sensibilisation équipe, espace dédié, offre montures enfant adaptée.',
+   checklist:['Au moins un opticien référent enfant (attestation DPC ou formation)','Sensibilisation de toute l\'équipe réalisée','Modalités de relais en cas d\'absence référent définies','Espace dédié enfant aménagé','Montures enfant avec UV catégorie 3 pour solaires'],
+   proofs:['Attestation formation DPC vision enfant','Preuve sensibilisation équipe (date + émargement)','Photo espace enfant','Vérification protection UV montures solaires enfant'],
+   procedure:`PROCÉDURE — Accompagnement vision de l'enfant\n\nRÉFÉRENT ENFANT :\n• Au moins un opticien diplômé avec formation spécifique (DPC vision enfant et/ou formation externe)\n• Attestation conservée dans le dossier de compétences\n\nSENSIBILISATION DE L'ÉQUIPE :\n• Organisée par le référent enfant\n• Réalisée pour l'ensemble du personnel\n• Preuve : feuille d'émargement datée\n• En cas d'absence du référent : modalités de relais définies par écrit\n\nOFFRE ENFANT :\n• Espace dédié aux produits enfants\n• Montures de vue colorées, formes et matières adaptées à la morphologie enfant\n• Montures solaires : protection 100% UV catégorie 3 minimum et/ou verres polarisés\n\nCONSEILS SPÉCIFIQUES :\n• Communiquer aux parents les modalités d'entretien spécifiques à l'équipement enfant`},
+
+  // PILOTAGE
+  {id:'p1',page:'pilotage',num:'Disp. 1',title:'Auto-évaluation annuelle',
+   tag:'obl',desc:'Avant chaque audit AFNOR, sur tous les engagements, résultats enregistrés et analysés.',
+   checklist:['Grille d\'auto-évaluation formalisée (tous engagements)','Auto-évaluation planifiée et datée','Résultats enregistrés','Analyse des écarts réalisée','Plan d\'action si nécessaire'],
+   proofs:['Grille auto-évaluation complétée (dernière en date)','Date de planification','Résultats analysés'],
+   procedure:`PROCÉDURE — Auto-évaluation annuelle\n\nFréquence : Au minimum 1 fois par an, AVANT l'audit AFNOR.\n\nSupport : Grille d'auto-évaluation reprenant tous les engagements du REF-230 V3 (engagements 1 à 20 applicables).\n\nMéthode :\n1. Planifier la date de l'auto-évaluation (au moins 1 mois avant l'audit)\n2. Évaluer chaque engagement : Conforme / Non conforme / Non applicable\n3. Pour chaque non-conformité : identifier la cause et l'action corrective\n4. Enregistrer les résultats\n5. Mettre en œuvre les actions correctives avant l'audit\n\nResponsable : Directeur du point de vente\n\nConservation : 3 ans (présentée lors des audits de suivi et de renouvellement).`},
+
+  {id:'p2',page:'pilotage',num:'Disp. 2',title:'Gestion des écarts et amélioration',
+   tag:'obl',desc:'Procédure formalisée, responsabilités définies, plans d\'action suivis.',
+   checklist:['Procédure gestion des écarts rédigée','Responsabilités de traitement définies','Registre des plans d\'action','Suivi des indicateurs de satisfaction'],
+   proofs:['Procédure gestion des écarts','Registre plans d\'action','Historique indicateurs satisfaction'],
+   procedure:`PROCÉDURE — Gestion des écarts et plans d'amélioration\n\nSOURCES D'ÉCARTS IDENTIFIÉES :\n• Réclamations clients\n• Résultats mesure de satisfaction (si < seuil critique)\n• Auto-évaluations\n• Audits AFNOR\n\nTRAITEMENT :\n1. Identification de l'écart et de sa cause\n2. Désignation d'un responsable de traitement\n3. Définition d'une action corrective et d'un délai\n4. Mise en œuvre de l'action\n5. Vérification de l'efficacité\n6. Enregistrement dans le registre des actions\n\nSEUILS :\n• Réclamation sans réponse > 15 jours ouvrés : réinformer le client du nouveau délai\n• Satisfaction < seuil critique : plan d'amélioration obligatoire\n• Satisfaction entre seuil et objectif : plan d'amélioration recommandé`},
+
+  {id:'p3',page:'pilotage',num:'Audit',title:'Préparation audit AFNOR',
+   tag:'obl',desc:'Dossier de candidature complet, preuves 3 mois min, cycle d\'audit sur 3 ans.',
+   checklist:['Lettre d\'engagement signée','Fiche signalétique complète et à jour','KBIS ou attestation AM','Agrément sécurité sociale','Copie diplôme opticien responsable','Auto-évaluation réalisée','Preuves 3 mois minimum d\'activité','Liste équipements du magasin'],
+   proofs:['Dossier candidature complet','Auto-évaluation réalisée','Documents de preuve par engagement'],
+   procedure:`CHECKLIST — Dossier de candidature AFNOR\n\nDOCUMENTS ADMINISTRATIFS :\n☐ Lettre d'engagement signée (modèle AFNOR)\n☐ Fiche signalétique complète\n☐ Extrait KBIS ou équivalent\n☐ Attestation Assurance Maladie (activité ≥ 3 mois)\n☐ Attestation agrément sécurité sociale\n☐ Copie diplôme opticien responsable (ou attestation ADELI/RPPS)\n☐ Liste des équipements du magasin\n☐ Auto-évaluation réalisée et résultats disponibles\n\nCYCLE D'AUDIT (3 ans) :\n• Année N : Audit initial — mystère (visite client) + dévoilé (3h30)\n• Année N+1 : Audit de suivi 1 — sur RDV, simulation vente + docs (1h30)\n• Année N+2 : Audit de suivi 2 — sur RDV, simulation vente + docs (1h30)\n• Année N+3 : Audit renouvellement — mystère + dévoilé (3h30)\n\nPRÉREQUIS :\n• Preuves d'application des engagements sur au moins 3 mois\n• Au moins un opticien diplômé présent pendant toute l'ouverture\n• Réglementation en vigueur respectée`},
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let currentPage='dashboard';
+let openCard=null;
+const checkStates={};
+
+// ── NAV ───────────────────────────────────────────────────────────────────────
+function buildNav(){
+  const nav=document.getElementById('nav');
+  PAGES.forEach(p=>{
+    const el=document.createElement('div');
+    el.className='nav-item'+(p.id===currentPage?' active':'');
+    el.dataset.id=p.id;
+    el.innerHTML=`<span class="nav-dot" style="background:${p.color}"></span>${p.label}${p.badge?`<span class="nav-badge">${p.badge}</span>`:''}`;
+    el.onclick=()=>navigate(p.id);
+    nav.appendChild(el);
+  });
+}
+
+function navigate(id){
+  currentPage=id;
+  openCard=null;
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.id===id);
+  });
+  render();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(){
+  const p=PAGES.find(x=>x.id===currentPage);
+  document.getElementById('page-title').textContent=p.label;
+  document.getElementById('page-sub').textContent=getSubtitle(p.id);
+  const c=document.getElementById('content');
+  c.innerHTML='';
+  const fn={
+    dashboard:renderDashboard,
+    signaletique:renderSignaletique,
+    reclamations:renderReclamations,
+    formations:renderFormations,
+  }[currentPage];
+  if(fn) fn(c);
+  else renderPage(c,currentPage);
+}
+
+function getSubtitle(id){
+  const m={dashboard:'Vue d\'ensemble — progression et documents à préparer',gov:'Déontologie, RSE, organisation documentaire',accueil:'Accueil, information, compétences, produits, partenaires',prestation:'Analyse besoins, offre de solutions, délivrance',suivi:'Dossier client, garanties, conseils',satisfaction:'Réclamations et mesure de satisfaction',compl:'Examen de vue et accompagnement basse vision',optionnel:'Services digitaux, domicile, vision enfant',pilotage:'Auto-évaluation, pilotage, audit AFNOR',signaletique:'Informations administratives du magasin',reclamations:'Enregistrement et suivi des réclamations',formations:'Plan de formation annuel du personnel'};
+  return m[id]||'';
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard(c){
+  const total=ENGAGEMENTS.length;
+  const done=ENGAGEMENTS.filter(e=>getProgress(e)===100).length;
+  const partial=ENGAGEMENTS.filter(e=>{const p=getProgress(e);return p>0&&p<100}).length;
+  const pct=Math.round(done/total*100);
+
+  c.innerHTML=`
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-n">${total}</div><div class="stat-l">Engagements au total</div><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+    <div class="stat-card"><div class="stat-n">${done}</div><div class="stat-l">Engagements complétés</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+    <div class="stat-card"><div class="stat-n">${partial}</div><div class="stat-l">En cours</div><div class="progress-bar"><div class="progress-fill" style="background:#f59e0b;width:${Math.round(partial/total*100)}%"></div></div></div>
+    <div class="stat-card"><div class="stat-n">${pct}%</div><div class="stat-l">Taux de complétion</div><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></div>
+  </div>
+  <div class="section-title">Avancement par onglet</div>
+  <table>
+    <thead><tr><th>Onglet</th><th>Engagements</th><th>Complétés</th><th>Progression</th></tr></thead>
+    <tbody>${['gov','accueil','prestation','suivi','satisfaction','compl','optionnel','pilotage'].map(pid=>{
+      const engs=ENGAGEMENTS.filter(e=>e.page===pid);
+      const d=engs.filter(e=>getProgress(e)===100).length;
+      const pct2=engs.length?Math.round(d/engs.length*100):0;
+      const label=PAGES.find(p=>p.id===pid).label;
+      return `<tr class="${d===engs.length?'tr-ok':d>0?'tr-todo':''}">
+        <td><strong>${label}</strong></td>
+        <td>${engs.length}</td>
+        <td>${d}/${engs.length}</td>
+        <td><div class="progress-bar" style="width:120px"><div class="progress-fill" style="width:${pct2}%;background:${pct2===100?'var(--green)':pct2>0?'#f59e0b':'#e5e7eb'}"></div></div></td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>
+  <div class="section-title" style="margin-top:20px">Accès rapide aux outils</div>
+  <div class="cards-grid">
+    ${[{id:'signaletique',t:'Fiche signalétique',d:'Compléter les informations du magasin'},{id:'reclamations',t:'Registre réclamations',d:'Enregistrer et suivre les réclamations'},{id:'formations',t:'Plan de formation',d:'Gérer le plan de formation annuel'},{id:'pilotage',t:'Préparer l\'audit',d:'Checklist dossier de candidature AFNOR'}].map(x=>`
+    <div class="card" onclick="navigate('${x.id}')">
+      <div class="card-title">${x.t}</div>
+      <div class="card-desc">${x.d}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── PAGE ENGAGEMENTS ──────────────────────────────────────────────────────────
+function renderPage(c,pid){
+  const engs=ENGAGEMENTS.filter(e=>e.page===pid);
+  if(!engs.length){c.innerHTML='<p style="color:#888;font-size:13px">Aucun engagement trouvé.</p>';return;}
+
+  engs.forEach(e=>{
+    const prog=getProgress(e);
+    const tagLabel={obl:'Obligatoire',comp:'Complémentaire',opt:'Optionnel'}[e.tag];
+    const tagCls={obl:'tag-obl',comp:'tag-comp',opt:'tag-opt'}[e.tag];
+    const statusColor=prog===100?'s-ok':prog>0?'s-todo':'s-no';
+
+    const cardEl=document.createElement('div');
+    cardEl.className='card'+(openCard===e.id?' open':'');
+    cardEl.id='card-'+e.id;
+    cardEl.innerHTML=`
+      <div class="card-header">
+        <div>
+          <div class="card-num">${e.num}</div>
+          <div class="card-title">${e.title}</div>
+        </div>
+        <div class="status-dot ${statusColor}" title="${prog}% complété"></div>
+      </div>
+      <div class="card-desc">${e.desc}</div>
+      <div class="card-tags">
+        <span class="tag ${tagCls}">${tagLabel}</span>
+        ${prog>0?`<span class="tag tag-audit">${prog}% complété</span>`:''}
+      </div>`;
+    cardEl.onclick=()=>toggleCard(e.id);
+    c.appendChild(cardEl);
+
+    if(openCard===e.id){
+      const drawer=document.createElement('div');
+      drawer.className='drawer';
+      drawer.innerHTML=buildDrawer(e);
+      c.appendChild(drawer);
+    }
+  });
+}
+
+function buildDrawer(e){
+  const proofItems=e.proofs.map(p=>`<div class="proof-item"><div class="proof-icon" style="background:var(--blue-bg)"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round"/></svg></div>${p}</div>`).join('');
+  const checkItems=e.checklist.map((item,i)=>{
+    const key=e.id+'_'+i;
+    const checked=!!checkStates[key];
+    return `<div class="checklist-item">
+      <div class="cb ${checked?'checked':''}" onclick="toggleCheck('${key}',this)"></div>
+      <span>${item}</span>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="inner-tabs">
+    <div class="inner-tab active" onclick="switchTab(this,'tab-check-${e.id}')">Checklist</div>
+    <div class="inner-tab" onclick="switchTab(this,'tab-proof-${e.id}')">Documents de preuve</div>
+    <div class="inner-tab" onclick="switchTab(this,'tab-proc-${e.id}')">Procédure</div>
+  </div>
+  <div id="tab-check-${e.id}" class="drawer-section">
+    <div class="drawer-label">Points à vérifier avant l'audit</div>
+    ${checkItems}
+  </div>
+  <div id="tab-proof-${e.id}" class="drawer-section" style="display:none">
+    <div class="drawer-label">Documents à présenter à l'auditeur</div>
+    <div class="proof-grid">${proofItems}</div>
+  </div>
+  <div id="tab-proc-${e.id}" class="drawer-section" style="display:none">
+    <div class="drawer-label">Procédure / modèle de document</div>
+    <div class="procedure-box">${e.procedure}</div>
+  </div>
+  <div class="actions-row">
+    <button class="btn btn-sm" onclick="copyProc('${e.id}')">Copier la procédure</button>
+    <button class="btn btn-sm" onclick="printProc('${e.id}')">Imprimer</button>
+  </div>`;
+}
+
+function switchTab(tabEl,targetId){
+  const drawer=tabEl.closest('.drawer');
+  drawer.querySelectorAll('.inner-tab').forEach(t=>t.classList.remove('active'));
+  tabEl.classList.add('active');
+  drawer.querySelectorAll('.drawer-section').forEach(s=>s.style.display='none');
+  drawer.querySelector('#'+targetId).style.display='';
+}
+
+function toggleCard(id){
+  openCard=openCard===id?null:id;
+  render();
+  if(openCard){
+    setTimeout(()=>{
+      const el=document.getElementById('card-'+id);
+      if(el)el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },50);
+  }
+}
+
+function toggleCheck(key,el){
+  checkStates[key]=!checkStates[key];
+  el.classList.toggle('checked',checkStates[key]);
+  if(checkStates[key])el.innerHTML='';
+  else el.innerHTML='';
+  el.classList.toggle('checked',checkStates[key]);
+  // re-render status dot
+  const engId=key.split('_')[0];
+  const e=ENGAGEMENTS.find(x=>x.id===engId);
+  if(e){
+    const prog=getProgress(e);
+    const dot=document.querySelector('#card-'+engId+' .status-dot');
+    if(dot){dot.className='status-dot '+(prog===100?'s-ok':prog>0?'s-todo':'s-no');}
+  }
+}
+
+function getProgress(e){
+  const total=e.checklist.length;
+  if(!total)return 0;
+  const done=e.checklist.filter((_,i)=>!!checkStates[e.id+'_'+i]).length;
+  return Math.round(done/total*100);
+}
+
+// ── FICHE SIGNALÉTIQUE ────────────────────────────────────────────────────────
+function renderSignaletique(c){
+  c.innerHTML=`
+  <div class="drawer">
+    <div class="drawer-label">Informations du magasin</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      ${['Nom du magasin','Raison sociale','Numéro FINESS','Adresse','Téléphone','Email','Responsable','N° KBIS','Date démarrage activité','Enseigne / réseau'].map(f=>`<div class="form-row"><label>${f}</label><input type="text" placeholder="${f}"></div>`).join('')}
+    </div>
+    <div class="drawer-label" style="margin-top:16px">Effectif</div>
+    <table id="staff-table">
+      <thead><tr><th>Nom</th><th>Fonction</th><th>Diplôme</th><th>École</th><th>Année</th></tr></thead>
+      <tbody id="staff-body">
+        <tr>${['','','','',''].map(()=>`<td><input type="text" style="border:none;background:transparent;padding:0;width:100%"></td>`).join('')}</tr>
+      </tbody>
+    </table>
+    <button class="btn btn-sm" style="margin-top:8px" onclick="addStaffRow()">+ Ajouter un collaborateur</button>
+    <div class="drawer-label" style="margin-top:16px">Prestations et services</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${[['Contrôle de la vue','examen_vue'],['Examen basse vision','basse_vision'],['Services digitaux et RDV en ligne','digital'],['RDV à domicile','domicile'],['Vision de l\'enfant','enfant']].map(([l,v])=>`<label style="display:flex;align-items:center;gap:8px;font-size:13px"><input type="checkbox" id="prest_${v}"> ${l}</label>`).join('')}
+    </div>
+    <div class="actions-row"><button class="btn btn-sm btn-primary" onclick="window.print()">Imprimer la fiche</button></div>
+  </div>`;
+}
+
+function addStaffRow(){
+  const tbody=document.getElementById('staff-body');
+  const tr=document.createElement('tr');
+  tr.innerHTML=['','','','',''].map(()=>`<td><input type="text" style="border:none;background:transparent;padding:0;width:100%"></td>`).join('');
+  tbody.appendChild(tr);
+}
+
+// ── REGISTRE RÉCLAMATIONS ─────────────────────────────────────────────────────
+function renderReclamations(c){
+  c.innerHTML=`
+  <div class="drawer">
+    <div class="drawer-label">Enregistrer une nouvelle réclamation</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="form-row"><label>Date de réception</label><input type="text" id="rec-date" placeholder="jj/mm/aaaa"></div>
+      <div class="form-row"><label>Nom du client</label><input type="text" id="rec-client" placeholder="Nom prénom"></div>
+      <div class="form-row"><label>Canal</label><select id="rec-canal"><option>Téléphone</option><option>Visite</option><option>Email</option><option>Courrier</option><option>Internet</option></select></div>
+    </div>
+    <div class="form-row"><label>Nature de la réclamation</label><textarea id="rec-desc" rows="2" placeholder="Décrire le motif de la réclamation"></textarea></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-row"><label>Date limite de réponse (15 jours ouvrés)</label><input type="text" id="rec-deadline" placeholder="Calculée automatiquement"></div>
+      <div class="form-row"><label>Responsable traitement</label><input type="text" id="rec-resp" placeholder="Nom du responsable"></div>
+    </div>
+    <div class="form-row"><label>Solution apportée</label><textarea id="rec-solution" rows="2" placeholder="Décrire la solution proposée au client"></textarea></div>
+    <div class="form-row"><label>Date de clôture</label><input type="text" id="rec-close" placeholder="jj/mm/aaaa"></div>
+    <div class="actions-row"><button class="btn btn-sm btn-primary" onclick="addReclamation()">Enregistrer la réclamation</button></div>
+  </div>
+  <div class="section-title" style="margin-top:20px">Historique des réclamations</div>
+  <table id="rec-table">
+    <thead><tr><th>Date</th><th>Client</th><th>Canal</th><th>Nature</th><th>Responsable</th><th>Délai max</th><th>Statut</th></tr></thead>
+    <tbody id="rec-body"><tr><td colspan="7" style="color:#aaa;text-align:center;padding:20px">Aucune réclamation enregistrée</td></tr></tbody>
+  </table>`;
+}
+
+function addReclamation(){
+  const d=v('rec-date'),cl=v('rec-client'),ca=document.getElementById('rec-canal').value,desc=v('rec-desc'),resp=v('rec-resp'),sol=v('rec-solution'),close=v('rec-close');
+  if(!d||!cl){alert('Merci de renseigner au moins la date et le nom du client.');return;}
+  const tbody=document.getElementById('rec-body');
+  const existing=tbody.querySelector('td[colspan]');
+  if(existing)tbody.innerHTML='';
+  const tr=document.createElement('tr');
+  const statut=close?'<span class="tag tag-obl">Clôturée</span>':'<span class="tag tag-comp">En cours</span>';
+  tr.innerHTML=`<td>${d}</td><td>${cl}</td><td>${ca}</td><td>${desc||'—'}</td><td>${resp||'—'}</td><td>${v('rec-deadline')||'—'}</td><td>${statut}</td>`;
+  tbody.appendChild(tr);
+  ['rec-date','rec-client','rec-desc','rec-resp','rec-solution','rec-close','rec-deadline'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+function v(id){return(document.getElementById(id)||{}).value||'';}
+
+// ── PLAN DE FORMATION ─────────────────────────────────────────────────────────
+function renderFormations(c){
+  c.innerHTML=`
+  <div class="drawer">
+    <div class="drawer-label">Ajouter une formation</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+      <div class="form-row"><label>Collaborateur</label><input type="text" id="f-person" placeholder="Nom prénom"></div>
+      <div class="form-row"><label>Intitulé de la formation</label><input type="text" id="f-title" placeholder="Intitulé"></div>
+      <div class="form-row"><label>Type</label><select id="f-type"><option>Formation continue</option><option>DPC</option><option>Fabricant / labo</option><option>Salon / congrès</option><option>CPF</option><option>Diplômante</option></select></div>
+      <div class="form-row"><label>Heures</label><input type="text" id="f-hours" placeholder="ex : 7h"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="form-row"><label>Date ou période</label><input type="text" id="f-date" placeholder="ex : mars 2025"></div>
+      <div class="form-row"><label>Organisme</label><input type="text" id="f-org" placeholder="Nom de l'organisme"></div>
+      <div class="form-row"><label>Statut</label><select id="f-status"><option>Prévu</option><option>Réalisé</option><option>Annulé</option></select></div>
+    </div>
+    <div class="actions-row"><button class="btn btn-sm btn-primary" onclick="addFormation()">Ajouter</button></div>
+  </div>
+  <div class="section-title" style="margin-top:20px">Plan de formation — suivi des heures</div>
+  <table>
+    <thead><tr><th>Collaborateur</th><th>Formation</th><th>Type</th><th>Heures</th><th>Période</th><th>Organisme</th><th>Statut</th></tr></thead>
+    <tbody id="f-body"><tr><td colspan="7" style="color:#aaa;text-align:center;padding:20px">Aucune formation enregistrée</td></tr></tbody>
+  </table>
+  <div id="f-recap" style="margin-top:12px;font-size:12px;color:#666"></div>`;
+}
+
+function addFormation(){
+  const person=v('f-person'),title=v('f-title'),type=document.getElementById('f-type').value,hours=v('f-hours'),date=v('f-date'),org=v('f-org'),status=document.getElementById('f-status').value;
+  if(!person||!title){alert('Merci de renseigner au moins le collaborateur et l\'intitulé.');return;}
+  const tbody=document.getElementById('f-body');
+  const existing=tbody.querySelector('td[colspan]');
+  if(existing)tbody.innerHTML='';
+  const statusClass={Prévu:'tag-comp',Réalisé:'tag-obl',Annulé:'tag-opt'}[status];
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td>${person}</td><td>${title}</td><td>${type}</td><td>${hours||'—'}</td><td>${date||'—'}</td><td>${org||'—'}</td><td><span class="tag ${statusClass}">${status}</span></td>`;
+  tbody.appendChild(tr);
+  ['f-person','f-title','f-hours','f-date','f-org'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+}
+
+// ── AUTO-EVAL MODAL ───────────────────────────────────────────────────────────
+function showModal(type){
+  const m=document.getElementById('modal');
+  const body=document.getElementById('modal-body');
+  if(type==='autoeval'){
+    const rows=ENGAGEMENTS.map(e=>`
+      <tr>
+        <td style="font-weight:500;white-space:nowrap">${e.num}</td>
+        <td>${e.title}</td>
+        <td><select style="width:100%;font-size:12px" onchange="this.closest('tr').style.background=this.value==='Conforme'?'#f0fdf4':this.value==='Non conforme'?'#fef2f2':this.value==='Partiel'?'#fffbeb':'#fff'"><option>À évaluer</option><option>Conforme</option><option>Partiel</option><option>Non conforme</option><option>Non applicable</option></select></td>
+        <td><input type="text" placeholder="Action corrective" style="font-size:12px;width:100%"></td>
+      </tr>`).join('');
+    body.innerHTML=`
+      <h2>Grille d'auto-évaluation</h2>
+      <div class="sub">REF-230 V3 — À réaliser avant l'audit AFNOR. Date : <input type="text" placeholder="jj/mm/aaaa" style="width:110px;font-size:12px;padding:3px 6px;border:1px solid #ddd;border-radius:5px"></div>
+      <table>
+        <thead><tr><th>Réf.</th><th>Engagement</th><th>Statut</th><th>Action corrective</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="modal-actions">
+        <button class="btn" onclick="closeModal()">Fermer</button>
+        <button class="btn btn-primary" onclick="window.print()">Imprimer</button>
+      </div>`;
+  }
+  m.style.display='flex';
+}
+
+function closeModal(e){
+  if(!e||e.target===document.getElementById('modal'))document.getElementById('modal').style.display='none';
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function copyProc(engId){
+  const e=ENGAGEMENTS.find(x=>x.id===engId);
+  if(!e)return;
+  navigator.clipboard.writeText(e.procedure).then(()=>alert('Procédure copiée dans le presse-papier'));
+}
+
+function printPage(){window.print();}
+function printProc(){window.print();}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+buildNav();
+render();
+</script>
+</body>
+</html>
